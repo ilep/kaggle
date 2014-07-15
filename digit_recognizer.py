@@ -13,11 +13,12 @@ import platform
 
 if platform.system() == 'Windows':
     if os.path.exists(os.getcwd() +'\\train.csv'):
-        path = os.getcwd() +'\\train.csv'
+        path = os.getcwd() +'\\train.csv' # on met dans path le chemin du training set, si ce chemin existe
 
 data = pd.read_csv(path,delimiter=',')
-n = data.shape[0]
-p = data.shape[1]
+n = data.shape[0]  # n est le nombre de ligne
+p = data.shape[1]  # p le nombre de colonne = nombre de pixels dans les images. Attention la premiere colonne est le label de l'image 
+
 
 y = data['label'] # labels 
 X = data.iloc[:,1:p] # features
@@ -27,11 +28,11 @@ X = data.iloc[:,1:p] # features
 import pylab as pl
 
 # 0/1 plot the 9 first digit 
-nine_first_digit = X.iloc[0:9,:]
-for i in range(nine_first_digit.shape[0]):  
-    pl.subplot(3, 3, i + 1)
-    digit = nine_first_digit.iloc[i,:].values.reshape((28,28))
-    pl.imshow(digit, cmap=pl.cm.gray_r, interpolation='nearest')
+nine_first_digit = X.iloc[0:9,:] # on recupere les 9 premiers digits
+for i in range(nine_first_digit.shape[0]): # et on les trace pour voir si çà correspond bien aux labels  
+    pl.subplot(3, 3, i + 1) # on se place sur le ieme element de notre grille de 3*3 plots
+    digit = nine_first_digit.iloc[i,:].values.reshape((28,28)) # la ligne representant les pixels est transformee en une matrice numpy 28*28
+    pl.imshow(digit, cmap=pl.cm.gray_r, interpolation='nearest') # on trace cette matrice de pixels qui representent l'image de resolution 28*28
 
 #-------------------------------- I DATA ANALYSIS ---------------------------------------
 from sklearn.svm import SVC
@@ -39,31 +40,37 @@ from sklearn.feature_selection import RFE
 from sklearn.decomposition import PCA 
 from pylab import *
 
-# I/ outlier detection 
+# I/ Outlier detection 
 
 # I/1 covariance between features
 
 # I/2 representtaion of the importance of features
-svc = SVC(kernel="linear", C=1)
-rfe = RFE(estimator=svc, n_features_to_select=1, step=1)
+svc = SVC(kernel="linear", C=1) 
+rfe = RFE(estimator=svc, n_features_to_select=1, step=1) # recursive feature elimination en utilisant SVC
 Xbis = X.iloc[0:1000,:]
 ybis = y.iloc[0:1000]
-rfe.fit(Xbis,ybis)
-ranking = rfe.ranking_.reshape((28,28))
-pl.matshow(ranking)
+rfe.fit(Xbis,ybis) # RFE est fitte sur 1000 digits pour etre plus rapide ds un premier temps
+ranking = rfe.ranking_.reshape((28,28)) # le classement des pixels est mis sous forme de matrice numpy
+pl.matshow(ranking) # on peut s'apercevoir de l'importance des pixels du milieu par rapport a ceux des bordures qui ne contiennet aucune info
 pl.colorbar()
 pl.title("Ranking of pixels with RFE")
 pl.show()
 
 # I/3 feature elimination
-features_to_keep = np.asarray(np.where(rfe.ranking_ <= 350)).reshape(350)
+features_to_keep = np.asarray(np.where(rfe.ranking_ <= 350)).reshape(350) # on garde arbitrairement les 350 pixels le splus explicatifs du label au sens de RFE
 Xbis = X.iloc[:,features_to_keep]
 
 # I/4 feature selection using PCA
-pca = PCA()
-pca.fit(X)
+pca = PCA(n_components=81) 
+X_new = pca.fit_transform(X)
 print(pca.explained_variance_ratio_) # sum is equal to 1
-plot(pca.explained_variance_ratio_[:100])
+plot(pca.explained_variance_ratio_)
+
+nine_first_digit_new = X_new[0:9,:] # X_new.iloc[0:9,:]
+for i in range(nine_first_digit_new.shape[0]):  
+    pl.subplot(3, 3, i + 1)
+    digit = nine_first_digit_new[i,:].reshape((9,9))
+    pl.imshow(digit, cmap=pl.cm.gray_r, interpolation='nearest')
 
 
 
