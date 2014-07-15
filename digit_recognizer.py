@@ -36,6 +36,8 @@ for i in range(nine_first_digit.shape[0]):
 #-------------------------------- I DATA ANALYSIS ---------------------------------------
 from sklearn.svm import SVC
 from sklearn.feature_selection import RFE
+from sklearn.decomposition import PCA 
+from pylab import *
 
 # I/ outlier detection 
 
@@ -56,6 +58,15 @@ pl.show()
 # I/3 feature elimination
 features_to_keep = np.asarray(np.where(rfe.ranking_ <= 350)).reshape(350)
 Xbis = X.iloc[:,features_to_keep]
+
+# I/4 feature selection using PCA
+pca = PCA()
+pca.fit(X)
+print(pca.explained_variance_ratio_) # sum is equal to 1
+plot(pca.explained_variance_ratio_[:100])
+
+
+
 
 #-------------------------------- II PREDICTION -----------------------------------------
 from sklearn import svm
