@@ -46,7 +46,7 @@ from pylab import *
 
 # I/2 representtaion of the importance of features
 svc = SVC(kernel="linear", C=1) 
-rfe = RFE(estimator=svc, n_features_to_select=1, step=1) # recursive feature elimination en utilisant SVC
+rfe = RFE(estimator=svc, n_features_to_select=350, step=20) # recursive feature elimination en utilisant SVC
 Xbis = X.iloc[0:1000,:]
 ybis = y.iloc[0:1000]
 rfe.fit(Xbis,ybis) # RFE est fitte sur 1000 digits pour etre plus rapide ds un premier temps
