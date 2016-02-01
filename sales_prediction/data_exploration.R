@@ -12,8 +12,13 @@ stores = read.csv("C:/Users/user/Documents/workspace/ilepStats/kaggle/sales_pred
 stores = data.table(stores)
 head(stores)
 
+setkey(x=stores,Store)
+
 train = read.csv("C:/Users/user/Documents/workspace/ilepStats/kaggle/sales_prediction/sales-prediction-challenge/train.csv")
 train = data.table(train)
+
+
+
 
 
 
@@ -57,7 +62,7 @@ ggplot(all_cumsums,aes(x=Date,y=Sales.cumsum)) + stat_summary(fun.data ="mean_sd
 
 # distribution des ventes par jour de la semaine
 boxpl <- ggplot(train, aes(y =Sales, x = as.character(DayOfWeek), fill = factor(DayOfWeek))) + geom_boxplot()
-
+boxpl
 
 train
 
@@ -68,10 +73,70 @@ ggplot(data = train, aes(x = Customers,y = Sales, group = Store, colour = factor
 
 
 # relation between Customers and Sales; bigger traffic ==> bigger Sales
-plot(train[Store==1,Customers], train[Store==1,Sales], pch = 19, col = "red")
+plot(train[Store==1,Customers], train[Store==1,Sales], pch = 20, col = "red")
+
+
+m <- lm(Sales~Customers, data = train[Store==1,list(Sales,Customers)])
+m$coefficients
+abline(m$coefficients, lwd=2, col = "blue")
+
+
+train[Store==1,max(Date)] # "2015-07-31"
+
+
+plot(train[Store==1 & Open ==1,Customers])
+
+
+
+setkey(train, Store)
+
+# joining the stores information on the training set
+train = train[stores]
+
+
+
+
+
+# Open = 0 ==> No Sales. OK!
+sum(train[Open==0,Sales])
+
+
+
+# Impact of competition
+# boxplot des Sales par bucket de distances nearest competitor
+
+
+
+
+
+# reegineering the train set to feed prediction model ==> my.train.1
+
+
+# one observation by (store /day)
+# ---------------------------------------------
+# y = Sales, 
+# X : - promo2running (0/1 for the specific date)
+#     - day.of.week
+#     - 
+my.train.1  = 
+
+  
 
 
 
 
 
 
+
+test = read.csv("C:/Users/user/Documents/workspace/ilepStats/kaggle/sales_prediction/sales-prediction-challenge/test.csv")
+test = data.table(test)
+test[,Date:=as.Date(Date)]
+
+test[Store == 1,min(Date)] # "2015-08-01"
+
+
+  
+  
+  
+  
+  
